@@ -5,46 +5,43 @@ import {
     deleteDoc,
     doc,
     updateDoc,
+    query,
+    where,
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import {
-    TextareaAutosize,
-    Paper,
-    Typography,
-    IconButton,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Button,
-} from '@mui/material';
+import { TextareaAutosize, Paper, Typography, IconButton, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import DOMPurify from 'dompurify';
+import { useAuth } from '../AuthProvider';
 
 const FetchedNotes = () => {
+    const { user } = useAuth();
     const [notes, setNotes] = useState([]);
     const [selectedNote, setSelectedNote] = useState(null);
     const [openModal, setOpenModal] = useState(false);
     const [editedNote, setEditedNote] = useState('');
 
     useEffect(() => {
-        const notesCollection = collection(db, 'notes');
+        if (user) {
+            const notesCollection = collection(db, 'notes');
+            const userNotesCollection = query(notesCollection, where('userId', '==', user.uid));
 
-        const unsubscribe = onSnapshot(notesCollection, (snapshot) => {
-            const newNotes = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
+            const unsubscribe = onSnapshot(userNotesCollection, (snapshot) => {
+                const newNotes = snapshot.docs.map((doc) => ({
+                    id: doc.id,
+                    ...doc.data(),
+                }));
 
-            setNotes(newNotes);
-        });
+                setNotes(newNotes);
+            });
 
-        // Clean up the listener when the component unmounts
-        return () => unsubscribe();
-    }, []);
+            // Clean up the listener when the component unmounts
+            return () => unsubscribe();
+        }
+    }, [user]);
 
     const handleDeleteNote = async (noteId) => {
         setSelectedNote(noteId);
@@ -99,13 +96,13 @@ const FetchedNotes = () => {
 
     return (
         <div>
-            <div className='md:bg-transparent md:hidden md:flex-row md:justify-start md:align-middle flex-wrap bg-transparent p-3 md:py-0 hidden flex-row justify-center align-middle'>
+            <div>
                 <Typography variant='h5' gutterBottom>
                     Le tue note
                 </Typography>
             </div>
 
-            <div className='md:bg-transparent md:flex md:flex-row md:justify-start md:align-middle md:py-0 flex-wrap bg-transparent flex flex-row justify-center align-middle'>
+            <div>
                 {notes.map((note) => (
                     <Paper
                         key={note.id}
@@ -121,7 +118,7 @@ const FetchedNotes = () => {
                         <div style={{ position: 'relative' }}>
                             <TextareaAutosize
                                 readOnly
-                                className='md:w-60 md:h-60 border-none resize-none rounded-lg p-4 shadow-xl cursor-pointer'
+                                className='border-none resize-none rounded-lg p-4 shadow-xl cursor-pointer'
                                 style={{ backgroundColor: '#feff9c' }}
                                 value={DOMPurify.sanitize(
                                     note.content.split(' ').length >= 3
@@ -161,7 +158,7 @@ const FetchedNotes = () => {
             </div>
 
             <Dialog open={openModal} onClose={handleCancelDelete}>
-                <div className='md:bg-transparent md:flex md:flex-row md:justify-between md:align-middle md:p-2 flex flex-row justify-between align-middle p-2' style={{ backgroundColor: '#feff9c' }}>
+                <div style={{ backgroundColor: '#feff9c', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px' }}>
                     <DialogTitle>My stickies</DialogTitle>
                     <IconButton
                         aria-label='edit'
@@ -175,14 +172,14 @@ const FetchedNotes = () => {
                 </div>
                 <DialogContent>
                     <TextareaAutosize
-                        className='md:w-60 md:h-60 w-60 h-60 border-none resize rounded-lg p-4 shadow-xl cursor-pointer'
+                        className='border-none resize rounded-lg p-4 shadow-xl cursor-pointer'
                         style={{ backgroundColor: '#feff9c' }}
                         value={DOMPurify.sanitize(editedNote)}
                         minRows={7}
                         onChange={(e) => setEditedNote(e.target.value)}
                     />
                 </DialogContent>
-                <DialogActions sx={{ backgroundColor: '#feff9c' }}>
+                <DialogActions style={{ backgroundColor: '#feff9c' }}>
                     <IconButton onClick={handleConfirmDelete} style={{ color: 'black' }}>
                         <DeleteIcon />
                     </IconButton>
