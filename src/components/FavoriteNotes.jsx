@@ -20,16 +20,23 @@ import {
     Button,
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import { useAuth } from '../AuthProvider';
 
 const FavoriteNotes = () => {
+    const { user } = useAuth();
     const [favoriteNotes, setFavoriteNotes] = useState([]);
     const [selectedNote, setSelectedNote] = useState(null);
     const [openModal, setOpenModal] = useState(false);
 
     useEffect(() => {
+        if (!user) return;
+
+        const userId = user.uid;
+
         const favoriteNotesQuery = query(
             collection(db, 'notes'),
-            where('isFavorite', '==', true)
+            where('isFavorite', '==', true),
+            where('userId', '==', userId)
         );
 
         const unsubscribe = onSnapshot(favoriteNotesQuery, (snapshot) => {
@@ -43,7 +50,7 @@ const FavoriteNotes = () => {
 
         // Clean up the listener when the component unmounts
         return () => unsubscribe();
-    }, []);
+    }, [user]);
 
     const handleDeleteNote = async (noteId) => {
         setSelectedNote(noteId);
@@ -78,42 +85,47 @@ const FavoriteNotes = () => {
 
             <div className='md:bg-transparent md:flex md:flex-row md:justify-start md:align-middle flex-wrap bg-transparent flex flex-row justify-center align-middle'>
                 {favoriteNotes.map((note) => (
-                    <Paper
-                        key={note.id}
-                        elevation={3}
-                        style={{
-                            position: 'relative',
-                            margin: '16px',
-                            padding: '16px',
-                            backgroundColor: 'transparent',
-                            boxShadow: 'none',
-                        }}
-                    >
-                        <TextareaAutosize
-                            readOnly
-                            className='md:w-60 md:h-60 border-none resize rounded-lg p-4 shadow-xl cursor-pointer'
-                            style={{ backgroundColor: '#feff9c' }}
-                            value={note.content}
-                            minRows={7}
-                        />
-                        <IconButton
-                            aria-label='delete'
-                            onClick={() => handleDeleteNote(note.id)}
-                            style={{
-                                position: 'absolute',
-                                bottom: '25px',
-                                right: '18px',
-                                zIndex: 1,
-                                color: 'black',
-                            }}
-                        >
-                            {note.isFavorite ? (
-                                // Render your red favorite icon here
-                                <span style={{ color: 'red' }}><FavoriteIcon /></span>
-                            ) : null}
-                        </IconButton>
-                    </Paper>
+                    // Check if the note's userId matches the current user's userId
+                    (
+                        note.userId === user.uid && (
+                            <Paper
+                                key={note.id}
+                                elevation={3}
+                                style={{
+                                    position: 'relative',
+                                    margin: '16px',
+                                    padding: '16px',
+                                    backgroundColor: 'transparent',
+                                    boxShadow: 'none',
+                                }}
+                            >
+                                <TextareaAutosize
+                                    readOnly
+                                    className='md:w-60 md:h-60 border-none resize rounded-lg p-4 shadow-xl cursor-pointer'
+                                    style={{ backgroundColor: '#feff9c' }}
+                                    value={note.content}
+                                    minRows={7}
+                                />
+                                <IconButton
+                                    aria-label='delete'
+                                    onClick={() => handleDeleteNote(note.id)}
+                                    style={{
+                                        position: 'absolute',
+                                        bottom: '25px',
+                                        right: '18px',
+                                        zIndex: 1,
+                                        color: 'black',
+                                    }}
+                                >
+                                    {note.isFavorite ? (
+                                        <span style={{ color: 'red' }}><FavoriteIcon /></span>
+                                    ) : null}
+                                </IconButton>
+                            </Paper>
+                        )
+                    )
                 ))}
+
             </div>
 
             <Dialog open={openModal} onClose={handleCancelDelete}>
