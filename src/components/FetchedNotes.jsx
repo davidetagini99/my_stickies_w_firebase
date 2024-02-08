@@ -9,7 +9,17 @@ import {
     where,
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import { TextareaAutosize, Paper, Typography, IconButton, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import {
+    TextareaAutosize,
+    Paper,
+    Typography,
+    IconButton,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    Button,
+} from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import EditIcon from '@mui/icons-material/Edit';
@@ -28,6 +38,8 @@ const FetchedNotes = () => {
         if (user) {
             const notesCollection = collection(db, 'notes');
             const userNotesCollection = query(notesCollection, where('userId', '==', user.uid));
+
+            console.log('User ID:', user.uid);
 
             const unsubscribe = onSnapshot(userNotesCollection, (snapshot) => {
                 const newNotes = snapshot.docs.map((doc) => ({
@@ -96,13 +108,13 @@ const FetchedNotes = () => {
 
     return (
         <div>
-            <div>
+            <div className='md:bg-transparent md:hidden md:flex-row md:justify-start md:align-middle flex-wrap bg-transparent p-3 md:py-0 hidden flex-row justify-center align-middle'>
                 <Typography variant='h5' gutterBottom>
                     Le tue note
                 </Typography>
             </div>
 
-            <div>
+            <div className='md:bg-transparent md:flex md:flex-row md:justify-start md:align-middle md:py-0 flex-wrap bg-transparent flex flex-row justify-center align-middle'>
                 {notes.map((note) => (
                     <Paper
                         key={note.id}
@@ -115,50 +127,53 @@ const FetchedNotes = () => {
                             boxShadow: 'none',
                         }}
                     >
-                        <div style={{ position: 'relative' }}>
-                            <TextareaAutosize
-                                readOnly
-                                className='border-none resize-none rounded-lg p-4 shadow-xl cursor-pointer'
-                                style={{ backgroundColor: '#feff9c' }}
-                                value={DOMPurify.sanitize(
-                                    note.content.split(' ').length >= 3
-                                        ? note.content.split(' ').slice(0, 3).join(' ') + '...'
-                                        : note.content
-                                )}
-                                minRows={7}
-                                onClick={() => openNoteModal(note.id, note.content)}
-                            />
-                            <IconButton
-                                aria-label='favorite'
-                                onClick={() =>
-                                    handleToggleFavorite(
-                                        note.id,
-                                        note.isFavorite
-                                    )
-                                }
-                                disabled={note.isFavorite}
-                                style={{
-                                    position: 'absolute',
-                                    bottom: '25px',
-                                    right: '18px',
-                                    zIndex: 1,
-                                    color: note.isFavorite ? 'red' : 'black',
-                                    opacity: note.isFavorite ? 0.5 : 1,
-                                }}
-                            >
-                                {note.isFavorite ? (
-                                    <FavoriteIcon />
-                                ) : (
-                                    <FavoriteBorderIcon />
-                                )}
-                            </IconButton>
-                        </div>
+                        {note.userId === user.uid && (  // Add this condition to check user ID
+                            <div style={{ position: 'relative' }}>
+                                <TextareaAutosize
+                                    readOnly
+                                    className='md:w-60 md:h-60 border-none resize-none rounded-lg p-4 shadow-xl cursor-pointer'
+                                    style={{ backgroundColor: '#feff9c' }}
+                                    value={DOMPurify.sanitize(
+                                        note.content.split(' ').length >= 3
+                                            ? note.content.split(' ').slice(0, 3).join(' ') + '...'
+                                            : note.content
+                                    )}
+                                    minRows={7}
+                                    onClick={() => openNoteModal(note.id, note.content)}
+                                />
+                                <IconButton
+                                    aria-label='favorite'
+                                    onClick={() =>
+                                        handleToggleFavorite(
+                                            note.id,
+                                            note.isFavorite
+                                        )
+                                    }
+                                    disabled={note.isFavorite}
+                                    style={{
+                                        position: 'absolute',
+                                        bottom: '25px',
+                                        right: '18px',
+                                        zIndex: 1,
+                                        color: note.isFavorite ? 'red' : 'black',
+                                        opacity: note.isFavorite ? 0.5 : 1,
+                                    }}
+                                >
+                                    {note.isFavorite ? (
+                                        <FavoriteIcon />
+                                    ) : (
+                                        <FavoriteBorderIcon />
+                                    )}
+                                </IconButton>
+                            </div>
+                        )}
                     </Paper>
                 ))}
+
             </div>
 
             <Dialog open={openModal} onClose={handleCancelDelete}>
-                <div style={{ backgroundColor: '#feff9c', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px' }}>
+                <div className='md:bg-transparent md:flex md:flex-row md:justify-between md:align-middle md:p-2 flex flex-row justify-between align-middle p-2' style={{ backgroundColor: '#feff9c' }}>
                     <DialogTitle>My stickies</DialogTitle>
                     <IconButton
                         aria-label='edit'
@@ -172,14 +187,14 @@ const FetchedNotes = () => {
                 </div>
                 <DialogContent>
                     <TextareaAutosize
-                        className='border-none resize rounded-lg p-4 shadow-xl cursor-pointer'
+                        className='md:w-60 md:h-60 w-60 h-60 border-none resize rounded-lg p-4 shadow-xl cursor-pointer'
                         style={{ backgroundColor: '#feff9c' }}
                         value={DOMPurify.sanitize(editedNote)}
                         minRows={7}
                         onChange={(e) => setEditedNote(e.target.value)}
                     />
                 </DialogContent>
-                <DialogActions style={{ backgroundColor: '#feff9c' }}>
+                <DialogActions sx={{ backgroundColor: '#feff9c' }}>
                     <IconButton onClick={handleConfirmDelete} style={{ color: 'black' }}>
                         <DeleteIcon />
                     </IconButton>

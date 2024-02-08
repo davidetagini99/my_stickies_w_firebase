@@ -5,7 +5,7 @@ import { db } from '../firebase';
 import SaveIcon from '@mui/icons-material/CheckCircle';
 import AddIcon from '@mui/icons-material/Add';
 import DOMPurify from 'dompurify';
-import { useAuth } from './AuthProvider';
+import { useAuth } from '../AuthProvider';
 
 const NoteCard = () => {
     const { user } = useAuth();
