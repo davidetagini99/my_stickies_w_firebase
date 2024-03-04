@@ -19,6 +19,7 @@ import {
     DialogContent,
     DialogActions,
     Button,
+    Slide,
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -27,19 +28,37 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import DOMPurify from 'dompurify';
 import { useAuth } from '../AuthProvider';
 
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
+
 const FetchedNotes = () => {
     const { user } = useAuth();
     const [notes, setNotes] = useState([]);
     const [selectedNote, setSelectedNote] = useState(null);
     const [openModal, setOpenModal] = useState(false);
     const [editedNote, setEditedNote] = useState('');
+    const [dialogTextareaHeight, setDialogTextareaHeight] = useState('auto');
+    const [isEditing, setIsEditing] = useState(false);
+
+    const handleDialogTextareaInput = (event) => {
+        const currentHeight = event.target.scrollHeight;
+        setDialogTextareaHeight(currentHeight);
+    };
+
+    const handleDialogTextareaClick = () => {
+        setIsEditing(true);
+        setDialogTextareaHeight('auto'); // Reset height to auto when editing starts
+    };
+
+    const handleDialogTextareaBlur = () => {
+        setIsEditing(false);
+    };
 
     useEffect(() => {
         if (user) {
             const notesCollection = collection(db, 'notes');
             const userNotesCollection = query(notesCollection, where('userId', '==', user.uid));
-
-            console.log('User ID:', user.uid);
 
             const unsubscribe = onSnapshot(userNotesCollection, (snapshot) => {
                 const newNotes = snapshot.docs.map((doc) => ({
@@ -127,7 +146,7 @@ const FetchedNotes = () => {
                             boxShadow: 'none',
                         }}
                     >
-                        {note.userId === user.uid && (  // Add this condition to check user ID
+                        {note.userId === user.uid && (
                             <div style={{ position: 'relative' }}>
                                 <TextareaAutosize
                                     readOnly
@@ -169,15 +188,19 @@ const FetchedNotes = () => {
                         )}
                     </Paper>
                 ))}
-
             </div>
 
-            <Dialog open={openModal} onClose={handleCancelDelete}>
+            <Dialog
+                open={openModal}
+                onClose={handleCancelDelete}
+                TransitionComponent={Transition}
+                sx={{ '& .MuiDialog-paper': { width: '500px', height: '500px' } }}
+            >
                 <div className='md:bg-transparent md:flex md:flex-row md:justify-between md:align-middle md:p-2 flex flex-row justify-between align-middle p-2' style={{ backgroundColor: '#feff9c' }}>
                     <DialogTitle>My stickies</DialogTitle>
                     <IconButton
                         aria-label='edit'
-                        onClick={handleEditNote}
+                        onClick={() => setIsEditing(true)}
                         style={{
                             color: 'black',
                         }}
@@ -186,12 +209,28 @@ const FetchedNotes = () => {
                     </IconButton>
                 </div>
                 <DialogContent>
+                    {/* Apply slice effect to the textarea inside DialogContent */}
                     <TextareaAutosize
+                        readOnly={!isEditing}
                         className='md:w-60 md:h-60 w-60 h-60 border-none resize rounded-lg p-4 shadow-xl cursor-pointer'
-                        style={{ backgroundColor: '#feff9c' }}
-                        value={DOMPurify.sanitize(editedNote)}
+                        style={{
+                            backgroundColor: '#feff9c',
+                            height: isEditing ? 'auto' : dialogTextareaHeight,
+                            resize: 'both',
+                            overflow: 'scroll',
+                            overflowX: 'hidden',
+                        }}
+                        value={DOMPurify.sanitize(
+                            isEditing
+                                ? editedNote
+                                : editedNote.split(' ').slice(0, 3).join(' ') +
+                                (editedNote.split(' ').length > 3 ? '...' : '')
+                        )}
                         minRows={7}
                         onChange={(e) => setEditedNote(e.target.value)}
+                        onInput={handleDialogTextareaInput}
+                        onClick={handleDialogTextareaClick}
+                        onBlur={handleDialogTextareaBlur}
                     />
                 </DialogContent>
                 <DialogActions sx={{ backgroundColor: '#feff9c' }}>

@@ -26,7 +26,14 @@ const SignInWithGoogleButton = () => {
         <Button
             variant="contained"
             onClick={handleGoogleLogin}
-            sx={{ backgroundColor: '#feff9c', color: 'black', padding: '9px', minWidth: '14vw', textTransform: 'lowercase' }}
+            sx={{
+                backgroundColor: '#feff9c', color: 'black', padding: '9px', minWidth: '14vw', textTransform: 'lowercase', '&:hover': {
+                    backgroundColor: 'black', color: 'white'
+                },
+                '&:focus': {
+                    backgroundColor: 'black', color: 'white'
+                },
+            }}
         >
             Accedi con Google
         </Button>
