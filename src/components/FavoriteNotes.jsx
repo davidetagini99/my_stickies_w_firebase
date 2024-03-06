@@ -20,6 +20,7 @@ import {
     Button,
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import CloseIcon from '@mui/icons-material/Close';
 import { useAuth } from '../AuthProvider';
 
 const FavoriteNotes = () => {
@@ -151,13 +152,15 @@ const FavoriteNotes = () => {
             </Dialog>
 
             <Dialog open={openNoteModal} onClose={handleCloseNoteModal}>
-                <DialogTitle>Note Content</DialogTitle>
+                <DialogActions>
+                    <IconButton aria-label="close" onClick={handleCloseNoteModal}>
+                        <CloseIcon />
+                    </IconButton>
+                </DialogActions>
                 <DialogContent>
                     <Typography>{selectedNoteContent}</Typography>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseNoteModal}>Close</Button>
-                </DialogActions>
+
             </Dialog>
         </div>
     );
