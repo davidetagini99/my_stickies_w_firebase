@@ -26,7 +26,9 @@ const FavoriteNotes = () => {
     const { user } = useAuth();
     const [favoriteNotes, setFavoriteNotes] = useState([]);
     const [selectedNote, setSelectedNote] = useState(null);
-    const [openModal, setOpenModal] = useState(false);
+    const [openDeleteModal, setOpenDeleteModal] = useState(false);
+    const [openNoteModal, setOpenNoteModal] = useState(false);
+    const [selectedNoteContent, setSelectedNoteContent] = useState('');
 
     useEffect(() => {
         if (!user) return;
@@ -54,7 +56,7 @@ const FavoriteNotes = () => {
 
     const handleDeleteNote = async (noteId) => {
         setSelectedNote(noteId);
-        setOpenModal(true);
+        setOpenDeleteModal(true);
     };
 
     const handleConfirmDelete = async () => {
@@ -64,7 +66,7 @@ const FavoriteNotes = () => {
                 isFavorite: false
             });
 
-            setOpenModal(false);
+            setOpenDeleteModal(false);
         } catch (error) {
             console.error('Error updating note: ', error);
         }
@@ -72,7 +74,17 @@ const FavoriteNotes = () => {
 
     const handleCancelDelete = () => {
         setSelectedNote(null);
-        setOpenModal(false);
+        setOpenDeleteModal(false);
+    };
+
+    const handleOpenNoteModal = (noteContent) => {
+        setSelectedNoteContent(noteContent);
+        setOpenNoteModal(true);
+    };
+
+    const handleCloseNoteModal = () => {
+        setSelectedNoteContent('');
+        setOpenNoteModal(false);
     };
 
     return (
@@ -85,50 +97,49 @@ const FavoriteNotes = () => {
 
             <div className='md:bg-transparent md:flex md:flex-row md:justify-start md:align-middle flex-wrap bg-transparent flex flex-row justify-center align-middle'>
                 {favoriteNotes.map((note) => (
-                    // Check if the note's userId matches the current user's userId
-                    (
-                        note.userId === user.uid && (
-                            <Paper
-                                key={note.id}
-                                elevation={3}
+                    note.userId === user.uid && (
+                        <Paper
+                            key={note.id}
+                            elevation={3}
+                            style={{
+                                position: 'relative',
+                                margin: '16px',
+                                padding: '16px',
+                                backgroundColor: 'transparent',
+                                boxShadow: 'none',
+                                overflow: 'hidden',
+                                position: 'relative',
+                            }}
+                        >
+                            <TextareaAutosize
+                                readOnly
+                                className={`note-textarea-${note.id} md:w-60 md:h-60 border-none resize rounded-lg p-4 shadow-xl cursor-pointer`}
+                                style={{ backgroundColor: '#feff9c', resize: 'none' }}
+                                value={note.content.split(' ').slice(0, 3).join(' ')}
+                                minRows={7}
+                                onClick={() => handleOpenNoteModal(note.content)}
+                            />
+                            <IconButton
+                                aria-label='favorite'
+                                onClick={() => handleDeleteNote(note.id)}
                                 style={{
-                                    position: 'relative',
-                                    margin: '16px',
-                                    padding: '16px',
-                                    backgroundColor: 'transparent',
-                                    boxShadow: 'none',
+                                    position: 'absolute',
+                                    bottom: '20px',
+                                    right: '20px',
+                                    zIndex: 1,
+                                    color: 'black',
                                 }}
                             >
-                                <TextareaAutosize
-                                    readOnly
-                                    className='md:w-60 md:h-60 border-none resize rounded-lg p-4 shadow-xl cursor-pointer'
-                                    style={{ backgroundColor: '#feff9c' }}
-                                    value={note.content}
-                                    minRows={7}
-                                />
-                                <IconButton
-                                    aria-label='delete'
-                                    onClick={() => handleDeleteNote(note.id)}
-                                    style={{
-                                        position: 'absolute',
-                                        bottom: '25px',
-                                        right: '18px',
-                                        zIndex: 1,
-                                        color: 'black',
-                                    }}
-                                >
-                                    {note.isFavorite ? (
-                                        <span style={{ color: 'red' }}><FavoriteIcon /></span>
-                                    ) : null}
-                                </IconButton>
-                            </Paper>
-                        )
+                                {note.isFavorite ? (
+                                    <span style={{ color: 'red' }}><FavoriteIcon /></span>
+                                ) : null}
+                            </IconButton>
+                        </Paper>
                     )
                 ))}
-
             </div>
 
-            <Dialog open={openModal} onClose={handleCancelDelete}>
+            <Dialog open={openDeleteModal} onClose={handleCancelDelete}>
                 <DialogTitle>My stickies</DialogTitle>
                 <DialogContent>
                     <Typography>Vuoi togliere questa nota dai preferiti?</Typography>
@@ -136,6 +147,16 @@ const FavoriteNotes = () => {
                 <DialogActions>
                     <Button onClick={handleCancelDelete}>No</Button>
                     <Button onClick={handleConfirmDelete}>Sì</Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={openNoteModal} onClose={handleCloseNoteModal}>
+                <DialogTitle>Note Content</DialogTitle>
+                <DialogContent>
+                    <Typography>{selectedNoteContent}</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseNoteModal}>Close</Button>
                 </DialogActions>
             </Dialog>
         </div>

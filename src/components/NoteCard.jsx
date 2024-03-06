@@ -75,9 +75,9 @@ const NoteCard = () => {
                 sx={{ '& .MuiDialog-paper': { width: '500px', height: 'fit-content' } }}
             >
                 <div className='md:bg-transparent md:w-full'>
-                    <div className='md:bg-transparent md:flex md:flex-row md:justify-between md:align-middle md:p-2 md:w-full w-72 bg-transparent flex flex-row justify-between align-middle p-2' style={{ backgroundColor: '#feff9c' }}>
+                    <div className='md:bg-transparent md:flex md:flex-row md:justify-between md:align-middle md:p-2 md:w-full w-full bg-transparent flex flex-row justify-between align-middle p-2' style={{ backgroundColor: '#feff9c' }}>
                         <DialogTitle>My Stickies</DialogTitle>
-                        <div className=' md:bg-transparent md:flex md:flex-col md:justify-center md:align-middle'>
+                        <div className=' md:bg-transparent md:flex md:flex-col md:justify-center md:align-middle flex flex-col justify-center align-middle'>
                             <Button sx={{ backgroundColor: 'transparent', height: 'fit-content', width: 'fit-content', textAlign: 'center', paddingLeft: '20px' }} onClick={saveNote} color="primary" startIcon={<SaveIcon sx={{ color: 'black' }} />}></Button>
                         </div>
 

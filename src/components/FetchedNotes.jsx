@@ -194,7 +194,7 @@ const FetchedNotes = () => {
                 open={openModal}
                 onClose={handleCancelDelete}
                 TransitionComponent={Transition}
-                sx={{ '& .MuiDialog-paper': { width: '500px', height: '500px' } }}
+                sx={{ '& .MuiDialog-paper': { width: '500px', height: 'fit-content' } }}
             >
                 <div className='md:bg-transparent md:flex md:flex-row md:justify-between md:align-middle md:p-2 flex flex-row justify-between align-middle p-2' style={{ backgroundColor: '#feff9c' }}>
                     <DialogTitle>My stickies</DialogTitle>
