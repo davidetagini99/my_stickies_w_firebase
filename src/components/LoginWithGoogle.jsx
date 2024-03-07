@@ -1,5 +1,5 @@
-import React from 'react';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
+import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithPopup } from 'firebase/auth';
 import app from '../firebase';
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
@@ -7,6 +7,21 @@ import DOMPurify from 'dompurify';
 
 const SignInWithGoogleButton = () => {
     const navigate = useNavigate();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    useEffect(() => {
+        const auth = getAuth(app);
+
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setIsAuthenticated(true);
+            } else {
+                setIsAuthenticated(false);
+            }
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     const handleGoogleLogin = async () => {
         const auth = getAuth(app);
@@ -17,15 +32,9 @@ const SignInWithGoogleButton = () => {
             const user = result.user;
             console.log('Google login successful', user);
 
-            // Sanitize user object
-            const sanitizedUser = DOMPurify.sanitize(user);
-            console.log('Sanitized user:', sanitizedUser);
-
-            // You can sanitize other text content as needed
-            const buttonText = 'Accedi con Google';
-            const sanitizedButtonText = DOMPurify.sanitize(buttonText);
-
-            console.log('Sanitized button text:', sanitizedButtonText);
+            // You can sanitize user object if needed
+            // const sanitizedUser = DOMPurify.sanitize(user);
+            // console.log('Sanitized user:', sanitizedUser);
 
             // You can add further logic like redirecting or updating state on successful login
             navigate('/home');
@@ -33,6 +42,13 @@ const SignInWithGoogleButton = () => {
             console.error('Error during Google login', error.message);
         }
     };
+
+    // Redirect to home if authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            navigate('/home');
+        }
+    }, [isAuthenticated, navigate]);
 
     return (
         <Button
