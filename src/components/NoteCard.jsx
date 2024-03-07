@@ -29,11 +29,12 @@ const NoteCard = () => {
         setNote(event.target.value);
     };
 
+    const sanitizedTitle = DOMPurify.sanitize(title);
+
     const saveNote = async () => {
         try {
             if (user && note.trim() !== '') {
                 const sanitizedNote = DOMPurify.sanitize(note);
-                const sanitizedTitle = DOMPurify.sanitize(title);
 
                 // Save the note with the user's ID
                 const docRef = await addDoc(collection(db, 'notes'), {
@@ -78,7 +79,7 @@ const NoteCard = () => {
             >
                 <div className='md:bg-transparent md:w-full'>
                     <div className='md:bg-transparent md:flex md:flex-row md:justify-between md:align-middle md:p-2 md:w-full w-full bg-transparent flex flex-row justify-between align-middle p-2' style={{ backgroundColor: '#feff9c' }}>
-                        <DialogTitle>{sanitizedTitle}</DialogTitle>
+                        <DialogTitle dangerouslySetInnerHTML={{ __html: sanitizedTitle }} />
                         <div className=' md:bg-transparent md:flex md:flex-col md:justify-center md:align-middle flex flex-col justify-center align-middle'>
                             <Button sx={{ backgroundColor: 'transparent', height: 'fit-content', width: 'fit-content', textAlign: 'center', paddingLeft: '20px' }} onClick={saveNote} color="primary" startIcon={<SaveIcon sx={{ color: 'black' }} />}></Button>
                         </div>
