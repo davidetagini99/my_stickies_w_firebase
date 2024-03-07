@@ -129,7 +129,7 @@ const FetchedNotes = () => {
         <div>
             <div className='md:bg-transparent md:hidden md:flex-row md:justify-start md:align-middle flex-wrap bg-transparent p-3 md:py-0 hidden flex-row justify-center align-middle'>
                 <Typography variant='h5' gutterBottom>
-                    Le tue note
+                    {DOMPurify.sanitize('Le tue note')}
                 </Typography>
             </div>
 
@@ -163,10 +163,7 @@ const FetchedNotes = () => {
                                 <IconButton
                                     aria-label='favorite'
                                     onClick={() =>
-                                        handleToggleFavorite(
-                                            note.id,
-                                            note.isFavorite
-                                        )
+                                        handleToggleFavorite(note.id, note.isFavorite)
                                     }
                                     disabled={note.isFavorite}
                                     style={{
@@ -197,7 +194,7 @@ const FetchedNotes = () => {
                 sx={{ '& .MuiDialog-paper': { width: '500px', height: 'fit-content' } }}
             >
                 <div className='md:bg-transparent md:flex md:flex-row md:justify-between md:align-middle md:p-2 flex flex-row justify-between align-middle p-2' style={{ backgroundColor: '#feff9c' }}>
-                    <DialogTitle>My stickies</DialogTitle>
+                    <DialogTitle>{DOMPurify.sanitize('My stickies')}</DialogTitle>
                     <IconButton
                         aria-label='edit'
                         onClick={() => setIsEditing(true)}

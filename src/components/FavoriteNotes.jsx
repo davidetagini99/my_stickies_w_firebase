@@ -22,6 +22,7 @@ import {
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import CloseIcon from '@mui/icons-material/Close';
 import { useAuth } from '../AuthProvider';
+import DOMPurify from 'dompurify';
 
 const FavoriteNotes = () => {
     const { user } = useAuth();
@@ -92,7 +93,7 @@ const FavoriteNotes = () => {
         <div>
             <div className='md:bg-transparent md:hidden md:flex-row md:justify-start md:align-middle hidden flex-row justify-center align-middle flex-wrap bg-transparent p-3'>
                 <Typography variant='h5' gutterBottom>
-                    Note preferite
+                    {DOMPurify.sanitize('Note preferite')}
                 </Typography>
             </div>
 
@@ -116,7 +117,7 @@ const FavoriteNotes = () => {
                                 readOnly
                                 className={`note-textarea-${note.id} md:w-60 md:h-60 border-none resize rounded-lg p-4 shadow-xl cursor-pointer`}
                                 style={{ backgroundColor: '#feff9c', resize: 'none' }}
-                                value={note.content.split(' ').slice(0, 3).join(' ')}
+                                value={DOMPurify.sanitize(note.content.split(' ').slice(0, 3).join(' '))}
                                 minRows={7}
                                 onClick={() => handleOpenNoteModal(note.content)}
                             />
@@ -141,13 +142,13 @@ const FavoriteNotes = () => {
             </div>
 
             <Dialog open={openDeleteModal} onClose={handleCancelDelete}>
-                <DialogTitle>My stickies</DialogTitle>
+                <DialogTitle>{DOMPurify.sanitize('My stickies')}</DialogTitle>
                 <DialogContent>
-                    <Typography>Vuoi togliere questa nota dai preferiti?</Typography>
+                    <Typography>{DOMPurify.sanitize('Vuoi togliere questa nota dai preferiti?')}</Typography>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCancelDelete}>No</Button>
-                    <Button onClick={handleConfirmDelete}>Sì</Button>
+                    <Button onClick={handleCancelDelete}>{DOMPurify.sanitize('No')}</Button>
+                    <Button onClick={handleConfirmDelete}>{DOMPurify.sanitize('Sì')}</Button>
                 </DialogActions>
             </Dialog>
 
@@ -158,9 +159,8 @@ const FavoriteNotes = () => {
                     </IconButton>
                 </DialogActions>
                 <DialogContent>
-                    <Typography>{selectedNoteContent}</Typography>
+                    <Typography>{DOMPurify.sanitize(selectedNoteContent)}</Typography>
                 </DialogContent>
-
             </Dialog>
         </div>
     );

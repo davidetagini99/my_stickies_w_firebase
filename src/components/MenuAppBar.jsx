@@ -15,9 +15,10 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import SignOutButton from './SignOutButton'; // Import the SignOutButton component
+import SignOutButton from './SignOutButton';
 import ProfileDropdown from './ProfileDropDown';
 import FavoriteButton from './FavoriteButton';
+import DOMPurify from 'dompurify';
 
 const drawerWidth = 240;
 const navItems = [];
@@ -29,14 +30,19 @@ function MenuAppBar({ window, handleSignOut }) {
         setMobileOpen((prevState) => !prevState);
     };
 
+    const sanitizedNavItems = navItems.map((item) => DOMPurify.sanitize(item));
+
+    // Example: Sanitize other texts
+    const titleText = DOMPurify.sanitize("My stickies");
+
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
             <Typography variant="h6" sx={{ my: 2 }}>
-                My stickies
+                {titleText}
             </Typography>
             <Divider />
             <List>
-                {navItems.map((item) => (
+                {sanitizedNavItems.map((item) => (
                     <ListItem key={item} disablePadding>
                         <ListItemButton sx={{ textAlign: 'center' }}>
                             <ListItemText primary={item} />
@@ -47,7 +53,6 @@ function MenuAppBar({ window, handleSignOut }) {
                     <FavoriteButton />
                     <SignOutButton handleSignOut={handleSignOut} />
                 </div>
-
             </List>
         </Box>
     );
@@ -73,10 +78,10 @@ function MenuAppBar({ window, handleSignOut }) {
                         component="div"
                         sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
                     >
-                        My stickies
+                        {titleText}
                     </Typography>
                     <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-                        {navItems.map((item) => (
+                        {sanitizedNavItems.map((item) => (
                             <Button key={item} sx={{ color: 'black' }}>
                                 {item}
                             </Button>
@@ -112,7 +117,7 @@ function MenuAppBar({ window, handleSignOut }) {
 
 MenuAppBar.propTypes = {
     window: PropTypes.func,
-    handleSignOut: PropTypes.func.isRequired, // Add PropTypes for handleSignOut
+    handleSignOut: PropTypes.func.isRequired,
 };
 
 export default MenuAppBar;

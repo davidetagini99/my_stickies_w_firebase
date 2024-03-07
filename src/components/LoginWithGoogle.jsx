@@ -3,6 +3,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import app from '../firebase';
 import Button from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 
 const SignInWithGoogleButton = () => {
     const navigate = useNavigate();
@@ -15,6 +16,17 @@ const SignInWithGoogleButton = () => {
             const result = await signInWithPopup(auth, provider);
             const user = result.user;
             console.log('Google login successful', user);
+
+            // Sanitize user object
+            const sanitizedUser = DOMPurify.sanitize(user);
+            console.log('Sanitized user:', sanitizedUser);
+
+            // You can sanitize other text content as needed
+            const buttonText = 'Accedi con Google';
+            const sanitizedButtonText = DOMPurify.sanitize(buttonText);
+
+            console.log('Sanitized button text:', sanitizedButtonText);
+
             // You can add further logic like redirecting or updating state on successful login
             navigate('/home');
         } catch (error) {
@@ -35,7 +47,7 @@ const SignInWithGoogleButton = () => {
                 },
             }}
         >
-            Accedi con Google
+            {DOMPurify.sanitize('Accedi con Google')}
         </Button>
     );
 };

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import DOMPurify from 'dompurify';
 
 const FavoriteButton = () => {
     const [anchorEl, setAnchorEl] = useState(null);
@@ -16,10 +17,12 @@ const FavoriteButton = () => {
         handleClose();
     };
 
+    const sanitizedText = DOMPurify.sanitize('Preferiti');
+
     return (
         <>
             <Button sx={{ color: 'black' }} onClick={handleViewFavorites}>
-                Preferiti
+                {sanitizedText}
             </Button>
         </>
     );
